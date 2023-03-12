@@ -24,13 +24,11 @@ def get_task(config, model):
     logger.info("Get loss.")
     cfg = config["loss"]
     loss = TaskLoss(cfg["class"])
-    print(repr(cfg["preprocessing"]))
     loss.preprocessing = cfg["preprocessing"]
 
     logger.info("Get metrics")
     cfg = config["metrics"]
     metrics = TaskMetrics(cfg["class"])
-    print(repr(cfg["preprocessing"]))
     metrics.preprocessing = cfg["preprocessing"]
 
     logger.info("Get optimizer")
@@ -60,10 +58,11 @@ def get_task(config, model):
 
 
 def train(
-    config_path: Union[str, Path],
+    config: Union[str, Path, dict],
 ) -> Trainer:
-    logger.info("Load configuration file.")
-    config = Yaml.load(config_path)
+    if isinstance(config, (str, Path)):
+        logger.info("Load configuration file.")
+        config = Yaml.load(str(config))
     logger.info("Get dataloaders.")
     train_dataloader = get_dataloader(config["train_dataloader"])
     val_dataloader = get_dataloader(config["val_dataloader"])

@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "eotools"
-version = "0.1.0"
+version = "0.1.1"
 description = ""
-authors = ["Johannes Hecher <hhecher@gmx.at>"]
+authors = ["Johannes Hecher"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
