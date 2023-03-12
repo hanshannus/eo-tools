@@ -1,0 +1,81 @@
+train_dataloader:
+  images: !init:eotorch.datasets.RasterDataset
+    - root: "~/Data/intelligon/train"
+    - bands:
+        - 1
+        - 2
+        - 3
+        - 7
+    - dtype: !import:torch.float
+  labels: !init:eotorch.datasets.JSONDataset
+    - root: "~/Data/intelligon/train"
+    - label_column: "label_id"
+    - indata:
+      - 0
+      - 1
+      - 2
+    - dtype: !import:torch.float
+  sampler: !init:eotorch.samplers.RandomBatchSampler
+    - size: 128
+    - batch_size: 10
+    - length: 100
+  params:
+    collate_fn: !import:eotorch.utils.stack_samples
+
+val_dataloader:
+  images: !init:eotorch.datasets.RasterDataset
+    - root: "~/Data/intelligon/val"
+    - bands:
+        - 1
+        - 2
+        - 3
+        - 7
+    - dtype: !import:torch.float
+  labels: !init:eotorch.datasets.JSONDataset
+    - root: "~/Data/intelligon/val"
+    - label_column: "label_id"
+    - indata:
+      - 0
+      - 1
+      - 2
+    - dtype: !import:torch.float
+  sampler: !init:eotorch.samplers.FullGridSampler
+    - size: 128
+    - stride: 128
+  params:
+    batch_size: 10
+    collate_fn: !import:eotorch.utils.stack_samples
+
+model: !init:segmentation_models_pytorch.UnetPlusPlus
+  - encoder_name: "resnet18"
+  - decoder_use_batchnorm: False
+  - in_channels: 4
+  - classes: 3
+
+task:
+  loss:
+    class: !init:torch.nn.CrossEntropyLoss
+    preprocessing: !eval "lambda y, y_hat: (y.long(), y_hat.float())"
+  metrics:
+    class:
+      - !init:torchmetrics.Accuracy
+        - task: "multiclass"
+        - num_classes: 3
+      - !init:torchmetrics.JaccardIndex
+        - task: "multiclass"
+        - num_classes: 3
+    preprocessing: !eval "lambda y, y_hat: (y.float(), y_hat.argmax(dim=1).float())"
+  optimizer:
+    class: !import:torch.optim.Adam
+    params:
+      lr: 0.0001
+  scheduler:
+    class: !import:torch.optim.lr_scheduler.ReduceLROnPlateau
+    params:
+      factor: 0.1
+      patience: 10
+  monitor: "val_MulticlassJaccardIndex"
+
+trainer:
+  max_epochs: 1
+  default_root_dir: "/Users/hannes/Data/logs"
