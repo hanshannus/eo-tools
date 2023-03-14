@@ -70,13 +70,15 @@ def train(
     model = config["model"]
     logger.info("Get task.")
     task = get_task(config["task"], model)
+    # train model with PyTorch Lightning
     logger.info("Initialize trainer.")
-    trainer = Trainer(**config["trainer"])
+    trainer = Trainer(**config.get("trainer", {}))
     logger.info("Start training.")
     trainer.fit(
         model=task,
         train_dataloaders=train_dataloader,
         val_dataloaders=val_dataloader,
+        **config.get("fit_params", {}),
     )
     logger.info("Training finished.")
     return trainer
