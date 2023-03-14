@@ -1,15 +1,15 @@
 [tool.poetry]
 name = "eotools"
-version = "0.1.1"
-description = ""
+version = "0.1.2"
 authors = ["Johannes Hecher"]
 readme = "README.md"
+description = "Machine learning tools for raster data"
 
 [tool.poetry.dependencies]
 python = ">=3.8.1,<3.12"
+loguru = "^0.6.0"
 eotorch = { git = "https://github.com/hanshannus/eo-torch.git", branch = "main" }
 yamx = { git="https://github.com/hanshannus/pyyaml-tag-extensions.git", branch = "main" }
-loguru = "^0.6.0"
 
 [tool.poetry.group.dev.dependencies]
 jupyter = "^1.0.0"
